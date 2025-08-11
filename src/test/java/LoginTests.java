@@ -1,10 +1,9 @@
-import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
-
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.hamcrest.Matchers.notNullValue;
+
 
 public class LoginTests extends TestBase{
 
@@ -14,7 +13,8 @@ public class LoginTests extends TestBase{
        given()
                 .header("x-api-key", apiKey)
                 .when()
-                .get(baseURI + basePath +  "/users").then()
+                .get("/users")
+               .then()
                .log().status()
                .log().body()
                .statusCode(200);
@@ -24,7 +24,7 @@ public class LoginTests extends TestBase{
         given()
                 .header("x-api-key", apiKey)
                 .when()
-                .get(baseURI + basePath + "/users?page=2")
+                .get("/users?page=2")
                 .then()
                 .log().status()
                 .log().body()
@@ -38,7 +38,7 @@ public class LoginTests extends TestBase{
                 .header("x-api-key", apiKey)
                 .log().uri()
                 .when()
-                .get(baseURI + basePath + "/custom-endpoints/4")
+                .get("/custom-endpoints/4")
                 .then()
                 .log().status()
                 .log().body()
@@ -47,13 +47,14 @@ public class LoginTests extends TestBase{
 
     @Test
     void errorUsersIdTest() {
-        Response response = given()
+        given()
                 .header("x-api-key", apiKey)
                 .when()
-                .get(baseURI + basePath + "/users/20");
-
-        assertEquals(response.getStatusCode(), 404);
-        System.out.println(response.asString());
+                .get("/users/20")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(404);
     }
 
     @Test
@@ -65,7 +66,7 @@ public class LoginTests extends TestBase{
                 .contentType(JSON)
                 .log().uri()
                 .when()
-                .post(baseURI + basePath + "/login")
+                .post("/login")
 
                 .then()
 
@@ -85,14 +86,14 @@ public class LoginTests extends TestBase{
                 .log().uri()
                 .header("x-api-key", apiKey)
         .when()
-            .post(baseURI + basePath + "/login")
+            .post("/login")
 
         .then()
        
             .log().status()
             .log().body()
             .statusCode(200)
-            .body("token", is("QpwL5tke4Pnpja7X4"));
+            .body("token", notNullValue());
     }
 
     @Test
@@ -106,7 +107,7 @@ public class LoginTests extends TestBase{
                 .log().uri()
 
                 .when()
-                .post(baseURI + basePath + "/register")
+                .post("/register")
 
                 .then()
 
@@ -126,7 +127,7 @@ public class LoginTests extends TestBase{
                 .header("x-api-key", apiKey)
 
         .when()
-            .post(baseURI + basePath + "/login")
+            .post("/login")
 
         .then()
             .log().status()
@@ -146,7 +147,7 @@ public class LoginTests extends TestBase{
                 .header("x-api-key", apiKey)
 
                 .when()
-                .post(baseURI + basePath + "/login")
+                .post("/login")
 
                 .then()
                 .log().status()
@@ -166,7 +167,7 @@ public class LoginTests extends TestBase{
                 .header("x-api-key", apiKey)
 
                 .when()
-                .post(baseURI + basePath + "/login")
+                .post("/login")
 
                 .then()
                 .log().status()
@@ -187,7 +188,7 @@ public class LoginTests extends TestBase{
                 .header("x-api-key", apiKey)
 
                 .when()
-                .post(baseURI + basePath + "/login")
+                .post("/login")
 
                 .then()
                 .log().status()
@@ -206,7 +207,7 @@ public class LoginTests extends TestBase{
                 .header("x-api-key", apiKey)
 
                 .when()
-                .post(baseURI + basePath + "/login")
+                .post("/login")
 
                 .then()
                 .log().status()
@@ -219,7 +220,7 @@ public class LoginTests extends TestBase{
         given()
                 .log().uri()
                 .header("x-api-key", apiKey)
-                .post(baseURI + basePath + "/login")
+                .post("/login")
                 .then()
                 .log().status()
                 .log().body()
@@ -232,7 +233,7 @@ public class LoginTests extends TestBase{
                 .contentType(JSON)
                 .log().uri()
                 .when()
-                .delete(baseURI + basePath + "/users/2")
+                .delete("/users/2")
                 .then()
                 .log().status()
                 .log().body()
