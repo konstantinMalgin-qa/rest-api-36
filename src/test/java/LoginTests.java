@@ -1,59 +1,57 @@
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
-import static io.restassured.RestAssured.given;
+
+import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class LoginTests {
+public class LoginTests extends TestBase{
 
 
     @Test
     void fetchUsersTest() {
-        // Отправляем GET-запрос на получение списка пользователей
-        Response response = given()
-                .header("x-api-key", "reqres-free-v1") // добавляем хедеры
+       given()
+                .header("x-api-key", apiKey)
                 .when()
-                .get("https://reqres.in/api/users");
-
-        // Проверяем статус-код и выводим тело ответа
-        assertEquals(response.getStatusCode(), 200);
-        System.out.println(response.asString());
+                .get(baseURI + basePath +  "/users").then()
+               .log().status()
+               .log().body()
+               .statusCode(200);
     }
     @Test
     void fetchUsersIdTest() {
-        // Отправляем GET-запрос на получение списка пользователей
-        Response response = given()
-                .header("x-api-key", "reqres-free-v1") // добавляем хедеры
+        given()
+                .header("x-api-key", apiKey)
                 .when()
-                .get("https://reqres.in/api/users/5");
+                .get(baseURI + basePath + "/users?page=2")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(200);
 
-        // Проверяем статус-код и выводим тело ответа
-        assertEquals(response.getStatusCode(), 200);
-        System.out.println(response.asString());
     }
 
     @Test
     void customEndpointsUsersIdTest() {
-        Response response = given()
-                .header("x-api-key", "reqres-free-v1")
+        given()
+                .header("x-api-key", apiKey)
                 .log().uri()
                 .when()
-                .get("https://reqres.in/api/custom-endpoints/4");
-
-        assertEquals(response.getStatusCode(), 200);
-        System.out.println(response.asString());
+                .get(baseURI + basePath + "/custom-endpoints/4")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(200);
     }
 
     @Test
     void errorUsersIdTest() {
-        // Отправляем GET-запрос на получение списка пользователей
         Response response = given()
-                .header("x-api-key", "reqres-free-v1") // добавляем хедеры
+                .header("x-api-key", apiKey)
                 .when()
-                .get("https://reqres.in/api/users/20");
+                .get(baseURI + basePath + "/users/20");
 
-        // Проверяем статус-код и выводим тело ответа
         assertEquals(response.getStatusCode(), 404);
         System.out.println(response.asString());
     }
@@ -67,7 +65,7 @@ public class LoginTests {
                 .contentType(JSON)
                 .log().uri()
                 .when()
-                .post("https://reqres.in/api/login")
+                .post(baseURI + basePath + "/login")
 
                 .then()
 
@@ -85,9 +83,9 @@ public class LoginTests {
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
-                .header("x-api-key", "reqres-free-v1")
+                .header("x-api-key", apiKey)
         .when()
-            .post("https://reqres.in/api/login")
+            .post(baseURI + basePath + "/login")
 
         .then()
        
@@ -104,10 +102,11 @@ public class LoginTests {
         given()
                 .body(authData)
                 .contentType(JSON)
+                .header("x-api-key", apiKey)
                 .log().uri()
-                .header("x-api-key", "reqres-free-v1")
+
                 .when()
-                .post("https://reqres.in/api/register")
+                .post(baseURI + basePath + "/register")
 
                 .then()
 
@@ -124,10 +123,10 @@ public class LoginTests {
         given()
                 .body(authData)
                 .log().uri()
-                .header("x-api-key", "reqres-free-v1")
+                .header("x-api-key", apiKey)
 
         .when()
-            .post("https://reqres.in/api/login")
+            .post(baseURI + basePath + "/login")
 
         .then()
             .log().status()
@@ -144,10 +143,10 @@ public class LoginTests {
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
-                .header("x-api-key", "reqres-free-v1")
+                .header("x-api-key", apiKey)
 
                 .when()
-                .post("https://reqres.in/api/login")
+                .post(baseURI + basePath + "/login")
 
                 .then()
                 .log().status()
@@ -164,10 +163,10 @@ public class LoginTests {
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
-                .header("x-api-key", "reqres-free-v1")
+                .header("x-api-key", apiKey)
 
                 .when()
-                .post("https://reqres.in/api/login")
+                .post(baseURI + basePath + "/login")
 
                 .then()
                 .log().status()
@@ -185,10 +184,10 @@ public class LoginTests {
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
-                .header("x-api-key", "reqres-free-v1")
+                .header("x-api-key", apiKey)
 
                 .when()
-                .post("https://reqres.in/api/login")
+                .post(baseURI + basePath + "/login")
 
                 .then()
                 .log().status()
@@ -204,10 +203,10 @@ public class LoginTests {
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
-                .header("x-api-key", "reqres-free-v1")
+                .header("x-api-key", apiKey)
 
                 .when()
-                .post("https://reqres.in/api/login")
+                .post(baseURI + basePath + "/login")
 
                 .then()
                 .log().status()
@@ -219,11 +218,24 @@ public class LoginTests {
     void unsuccessfulLogin415Test() {
         given()
                 .log().uri()
-                .header("x-api-key", "reqres-free-v1")
-                .post("https://reqres.in/api/login")
+                .header("x-api-key", apiKey)
+                .post(baseURI + basePath + "/login")
                 .then()
                 .log().status()
                 .log().body()
                 .statusCode(415);
+    }
+    @Test
+    void successfulDeleteUserTest() {
+        given()
+                .header("x-api-key", apiKey)
+                .contentType(JSON)
+                .log().uri()
+                .when()
+                .delete(baseURI + basePath + "/users/2")
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(204);
     }
 }
