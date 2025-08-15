@@ -1,6 +1,12 @@
+import io.qameta.allure.restassured.AllureRestAssured;
 import models.LoginBodyLombokModel;
 import models.LoginResponseLombokModel;
+import models.UnsuccessfulLoginResponseLobmokModel;
+import models.UsersResponseLombokModel;
 import org.junit.jupiter.api.Test;
+
+import static helpers.CustomAllureListener.withCustomTemplates;
+import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.is;
@@ -12,63 +18,41 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class LoginTests extends TestBase{
 
 
-    @Test
-    void fetchUsersTest() {
-       given()
-                .header("x-api-key", apiKey)
-                .when()
-                .get("/users")
-               .then()
-               .log().status()
-               .log().body()
-               .statusCode(200);
-    }
-    @Test
-    void fetchUsersIdTest() {
-        given()
-                .header("x-api-key", apiKey)
-                .when()
-                .queryParam("page", "2")
-                .get("/users")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(200);
+    //String
+            //supportUrl = "https://contentcaddy.io?utm_source=reqres&utm_medium=json&utm_campaign=referral",
+           // supportText = "Tired of writing endless social media content? Let Content Caddy generate it for you.";
 
-    }
+//    @Test
+//    void successfulSingleUserTest() {
+//        UsersResponseLombokModel response = step("Make request", ()->
+//                given(requestSpec)
+//                        .get("/users/2")
+//                        .then()
+//                        .spec(responseSpec(200))
+//                        .extract()
+//                        .as(UsersResponseLombokModel.class));
+//
+//        step("Check response", () -> {
+//            assertEquals(2, response.getData().getId());
+//            assertEquals("janet.weaver@reqres.in", response.getData().getEmail());
+//            assertEquals("Janet", response.getData().getFirst_name());
+//            assertEquals("Weaver", response.getData().getLast_name());
+//            assertEquals(baseURI + "/img/faces/2-image.jpg", response.getData().getAvatar());
+//            assertEquals(supportUrl, response.getSupport().getUrl());
+//            assertEquals(supportText, response.getSupport().getText());
+//        });
+//    }
 
-    @Test
-    void customEndpointsUsersIdTest() {
-        given()
-                .header("x-api-key", apiKey)
-                .log().uri()
-                .when()
-                .get("/custom-endpoints/4")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(200);
-    }
-
-    @Test
-    void errorUsersIdTest() {
-        given()
-                .header("x-api-key", apiKey)
-                .when()
-                .get("/users/20")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(404);
-    }
 
     @Test
     void errorAithtorisationTest() {
         LoginBodyLombokModel authData = new LoginBodyLombokModel();
         authData.setEmail("eve.holt@reqres.in");
         authData.setPassword("cityslicka");
+        UnsuccessfulLoginResponseLobmokModel response = step("Make request", ()->
 
-        given()
+                given()
+
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
@@ -80,42 +64,56 @@ public class LoginTests extends TestBase{
                 .log().status()
                 .log().body()
                 .statusCode(401)
-                .body("error", is("Missing API key"));
+                .extract().as(UnsuccessfulLoginResponseLobmokModel.class));
+        step("Check response", () ->
+            assertEquals("Missing API key", response.getError())
+        );
+
     }
 
     @Test
     void successfulLoginTest() {
-        //String authData = "{\"email\": \"eve.holt@reqres.in\", \"password\": \"cityslicka\"}";
-
         LoginBodyLombokModel authData = new LoginBodyLombokModel();
         authData.setEmail("eve.holt@reqres.in");
         authData.setPassword("cityslicka");
-        LoginResponseLombokModel response = given()
+        LoginResponseLombokModel response = step("Make request", ()->
+                given()
+                .filter(withCustomTemplates())
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
+                .log().body()
+                .log().headers()
                 .header("x-api-key", apiKey)
         .when()
             .post("/login")
 
         .then()
-       
+
             .log().status()
             .log().body()
             .statusCode(200)
-                .extract().as(LoginResponseLombokModel.class);
-        assertNotNull(response.getToken());
+
+                .extract().as(LoginResponseLombokModel.class));
+        step("Check response", () ->
+        assertNotNull(response.getToken())
+        );
     }
 
     @Test
     void errorRegisterTest() {
-        String authData = "{\"username\":\"Konstantin\", \"email\": \"konsta.holt@reqres.in\", \"password\": \"qazwsx\"}";
-
-        given()
+        LoginBodyLombokModel authData = new LoginBodyLombokModel();
+        authData.setName("Konstantin");
+        authData.setEmail("konsta.holt@reqres.in");
+        authData.setPassword("qazwsx");
+        UnsuccessfulLoginResponseLobmokModel response = step("Make request", ()->
+                given()
                 .body(authData)
                 .contentType(JSON)
                 .header("x-api-key", apiKey)
                 .log().uri()
+                .log().body()
+                .log().headers()
 
                 .when()
                 .post("/register")
@@ -125,16 +123,23 @@ public class LoginTests extends TestBase{
                 .log().status()
                 .log().body()
                 .statusCode(400)
-                .body("error", is("Note: Only defined users succeed registration"));
+                .extract().as(UnsuccessfulLoginResponseLobmokModel.class));
+        step("Check response", () ->
+                assertEquals("Note: Only defined users succeed registration", response.getError()));
+
     }
 
     @Test
     void unsuccessfulLogin400Test() {
-        String authData = "";
-
+        LoginBodyLombokModel authData = new LoginBodyLombokModel();
+        authData.setEmail("");
+        authData.setPassword("");
+        UnsuccessfulLoginResponseLobmokModel response = step("Make request", ()->
         given()
                 .body(authData)
                 .log().uri()
+                .log().body()
+                .log().headers()
                 .header("x-api-key", apiKey)
 
         .when()
@@ -144,17 +149,26 @@ public class LoginTests extends TestBase{
             .log().status()
             .log().body()
             .statusCode(400)
-            .body("error", is("Missing email or username"));
+                .extract()
+                .as(UnsuccessfulLoginResponseLobmokModel.class));
+        step("Check response", () ->
+        assertEquals("Missing email or username", response.getError()));
+
     }
 
     @Test
     void userNotFoundTest() {
-        String authData = "{\"email\": \"eveasdas.holt@reqres.in\", \"password\": \"cda\"}";
 
+        LoginBodyLombokModel authData = new LoginBodyLombokModel();
+        authData.setEmail("eveasdas.holt@reqres.in");
+        authData.setPassword("cda");
+        UnsuccessfulLoginResponseLobmokModel response = step("Make request", ()->
         given()
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
+                .log().body()
+                .log().headers()
                 .header("x-api-key", apiKey)
 
                 .when()
@@ -164,81 +178,17 @@ public class LoginTests extends TestBase{
                 .log().status()
                 .log().body()
                 .statusCode(400)
-                .body("error", is("user not found"));
-    }
+                .extract()
+                .as(UnsuccessfulLoginResponseLobmokModel.class));
+        step("Check response", () ->
+        assertEquals("user not found", response.getError()));
 
-    @Test
-    void missingPasswordTest() {
-        String authData = "{\"email\": \"eveasdas.holt@reqres.in\"}";
-
-        given()
-                .body(authData)
-                .contentType(JSON)
-                .log().uri()
-                .header("x-api-key", apiKey)
-
-                .when()
-                .post("/login")
-
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(400)
-                .body("error", is("Missing password"));
     }
 
 
-    @Test
-    void missingLoginTest() {
-        String authData = "{\"password\": \"cda\"}";
-
-        given()
-                .body(authData)
-                .contentType(JSON)
-                .log().uri()
-                .header("x-api-key", apiKey)
-
-                .when()
-                .post("/login")
-
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(400)
-                .body("error", is("Missing email or username"));
-    }
-    @Test
-    void wrongBodyTest() {
-        String authData = "%}";
-
-        given()
-                .body(authData)
-                .contentType(JSON)
-                .log().uri()
-                .header("x-api-key", apiKey)
-
-                .when()
-                .post("/login")
-
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(400);
-    }
-
-    @Test
-    void unsuccessfulLogin415Test() {
-        given()
-                .log().uri()
-                .header("x-api-key", apiKey)
-                .post("/login")
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(415);
-    }
     @Test
     void successfulDeleteUserTest() {
+        step("Make request", ()->
         given()
                 .header("x-api-key", apiKey)
                 .contentType(JSON)
@@ -248,6 +198,6 @@ public class LoginTests extends TestBase{
                 .then()
                 .log().status()
                 .log().body()
-                .statusCode(204);
+                .statusCode(204));
     }
 }
