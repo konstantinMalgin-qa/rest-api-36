@@ -1,3 +1,5 @@
+package tests;
+
 import models.LoginBodyLombokModel;
 import models.LoginResponseLombokModel;
 import models.UnsuccessfulLoginResponseLobmokModel;
@@ -10,13 +12,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
-public class LoginFirstVersionTests extends TestBase{
+public class LoginFirstVersionTests extends TestBase {
 
 
     @Test
     void fetchUsersTest() {
        given()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
                 .when()
                 .get("/users")
                .then()
@@ -27,7 +29,7 @@ public class LoginFirstVersionTests extends TestBase{
     @Test
     void fetchUsersIdTest() {
         given()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
                 .when()
                 .queryParam("page", "2")
                 .get("/users")
@@ -41,7 +43,7 @@ public class LoginFirstVersionTests extends TestBase{
     @Test
     void customEndpointsUsersIdTest() {
         given()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
                 .log().uri()
                 .when()
                 .get("/custom-endpoints/4")
@@ -54,7 +56,7 @@ public class LoginFirstVersionTests extends TestBase{
     @Test
     void errorUsersIdTest() {
         given()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
                 .when()
                 .get("/users/20")
                 .then()
@@ -97,7 +99,7 @@ public class LoginFirstVersionTests extends TestBase{
                 .log().uri()
                 .log().body()
                 .log().headers()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
         .when()
             .post("/login")
 
@@ -121,7 +123,7 @@ public class LoginFirstVersionTests extends TestBase{
         UnsuccessfulLoginResponseLobmokModel response =given()
                 .body(authData)
                 .contentType(JSON)
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
                 .log().uri()
                 .log().body()
                 .log().headers()
@@ -150,7 +152,7 @@ public class LoginFirstVersionTests extends TestBase{
                 .log().uri()
                 .log().body()
                 .log().headers()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
 
         .when()
             .post("/login")
@@ -178,7 +180,7 @@ public class LoginFirstVersionTests extends TestBase{
                 .log().uri()
                 .log().body()
                 .log().headers()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
 
                 .when()
                 .post("/login")
@@ -201,7 +203,7 @@ public class LoginFirstVersionTests extends TestBase{
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
 
                 .when()
                 .post("/login")
@@ -222,7 +224,7 @@ public class LoginFirstVersionTests extends TestBase{
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
 
                 .when()
                 .post("/login")
@@ -241,7 +243,7 @@ public class LoginFirstVersionTests extends TestBase{
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
 
                 .when()
                 .post("/login")
@@ -256,7 +258,7 @@ public class LoginFirstVersionTests extends TestBase{
     void unsuccessfulLogin415Test() {
         given()
                 .log().uri()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
                 .post("/login")
                 .then()
                 .log().status()
@@ -266,7 +268,7 @@ public class LoginFirstVersionTests extends TestBase{
     @Test
     void successfulDeleteUserTest() {
         given()
-                .header("x-api-key", apiKey)
+                .header("x-api-key", TestBase.apiKey)
                 .contentType(JSON)
                 .log().uri()
                 .when()
