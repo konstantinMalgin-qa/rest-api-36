@@ -1,8 +1,12 @@
+import models.LoginBodyLombokModel;
+import models.LoginResponseLombokModel;
 import org.junit.jupiter.api.Test;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 public class LoginTests extends TestBase{
@@ -60,7 +64,9 @@ public class LoginTests extends TestBase{
 
     @Test
     void errorAithtorisationTest() {
-        String authData = "{\"email\": \"eve.holt@reqres.in\", \"password\": \"cityslicka\"}";
+        LoginBodyLombokModel authData = new LoginBodyLombokModel();
+        authData.setEmail("eve.holt@reqres.in");
+        authData.setPassword("cityslicka");
 
         given()
                 .body(authData)
@@ -79,9 +85,12 @@ public class LoginTests extends TestBase{
 
     @Test
     void successfulLoginTest() {
-        String authData = "{\"email\": \"eve.holt@reqres.in\", \"password\": \"cityslicka\"}";
+        //String authData = "{\"email\": \"eve.holt@reqres.in\", \"password\": \"cityslicka\"}";
 
-        given()
+        LoginBodyLombokModel authData = new LoginBodyLombokModel();
+        authData.setEmail("eve.holt@reqres.in");
+        authData.setPassword("cityslicka");
+        LoginResponseLombokModel response = given()
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
@@ -94,7 +103,8 @@ public class LoginTests extends TestBase{
             .log().status()
             .log().body()
             .statusCode(200)
-            .body("token", notNullValue());
+                .extract().as(LoginResponseLombokModel.class);
+        assertNotNull(response.getToken());
     }
 
     @Test
