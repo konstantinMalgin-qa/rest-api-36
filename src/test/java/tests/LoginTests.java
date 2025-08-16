@@ -5,20 +5,16 @@ import models.LoginResponseLombokModel;
 import models.UnsuccessfulLoginResponseLobmokModel;
 import models.UsersResponseLombokModel;
 import org.junit.jupiter.api.Test;
-
 import static io.qameta.allure.Allure.step;
 import static io.restassured.RestAssured.*;
 import static io.restassured.http.ContentType.JSON;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static specs.ErrorRequestSpec.errorRequestSpec;
-import static specs.RequestSpec.requestSpec;
-import static specs.ResponseSpec.responseSpec;
-
+import static specs.ReqResSpec.errorRequestSpec;
+import static specs.ReqResSpec.requestSpec;
+import static specs.ReqResSpec.responseSpec;
 
 public class LoginTests extends TestBase {
-
 
     String
             supportUrl = "https://contentcaddy.io?utm_source=reqres&utm_medium=json&utm_campaign=referral",
@@ -44,7 +40,6 @@ public class LoginTests extends TestBase {
             assertEquals(supportText, response.getSupport().getText());
         });
     }
-
 
     @Test
     void errorAithtorisationTest() {
